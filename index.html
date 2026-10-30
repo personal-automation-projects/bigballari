@@ -8,6 +8,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Montserrat:wght@300;400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
+
+<!-- Device detection runs before first paint so the mobile/tablet layout applies immediately -->
+<script>
+  (function () {
+    var ua = navigator.userAgent || "";
+    var mobileUA = /Android|iPhone|iPad|iPod|Mobile|Tablet|Silk|Kindle/i.test(ua);
+    var touchTablet = navigator.maxTouchPoints > 1 && Math.min(screen.width, screen.height) < 1100;
+    if (mobileUA || touchTablet) document.documentElement.classList.add("is-mobile");
+  })();
+</script>
+
 <style>
   :root {
     --navy-950: #000016;
@@ -28,16 +39,26 @@
     --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
     --sans: "Montserrat", "Segoe UI", Roboto, Arial, sans-serif;
     --kannada: "Noto Sans Kannada", "Nirmala UI", sans-serif;
+    --app-h: 100svh;
   }
 
   *, *::before, *::after { box-sizing: border-box; }
-  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overflow-x: hidden;
+    overflow-x: clip;
+    max-width: 100%;
+  }
   body {
     margin: 0;
     font-family: var(--sans);
     color: var(--ink);
     background: radial-gradient(ellipse at top, var(--navy-800), var(--navy-900) 45%, var(--navy-950));
     overflow-x: hidden;
+    overflow-x: clip;
+    max-width: 100%;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
@@ -153,6 +174,34 @@
   .intro.open .intro-center { opacity: 0; transform: scale(1.08); filter: blur(6px); }
   .intro.open { pointer-events: none; }
 
+  /* ================= SHARED TEXT ================= */
+  .eyebrow {
+    font-size: clamp(.66rem, 2.5vw, .84rem);
+    font-weight: 600;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: #fffaf0;
+    margin: 0 0 clamp(1.25rem, 4vh, 2.25rem);
+    text-shadow: 0 0 14px rgba(0,0,30,.9), 0 2px 10px rgba(0,0,0,.85);
+  }
+  .getting-married {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: clamp(1.25rem, 4.6vw, 1.75rem);
+    line-height: 1.3;
+    color: #fff8e1;
+    margin: clamp(.6rem, 2vh, 1rem) 0 0;
+    letter-spacing: .02em;
+    text-shadow: 0 0 14px rgba(0,0,30,.9), 0 2px 10px rgba(0,0,0,.85);
+  }
+  .getting-married::before, .getting-married::after {
+    content: "\2727";
+    color: var(--gold);
+    margin: 0 .55rem;
+    font-style: normal;
+  }
+
   /* ================= HERO ================= */
   .hero {
     position: relative;
@@ -169,18 +218,22 @@
     z-index: -2;
     will-change: transform;
   }
-  .hero-media img {
+  .hero-zoom {
+    position: absolute; inset: 0;
+    will-change: transform;
+    animation: heroZoom 26s ease-in-out infinite alternate;
+  }
+  .hero-zoom img {
     width: 100%; height: 100%;
     object-fit: cover; object-position: center 40%;
-    animation: heroZoom 26s ease-in-out infinite alternate;
-    /* soft edge fade only - no blending, no second copy */
+    /* soft edge fade only */
     -webkit-mask-image: radial-gradient(ellipse 82% 78% at 50% 50%, #000 62%, rgba(0,0,0,.55) 88%, rgba(0,0,0,0) 100%);
             mask-image: radial-gradient(ellipse 82% 78% at 50% 50%, #000 62%, rgba(0,0,0,.55) 88%, rgba(0,0,0,0) 100%);
   }
   .hero-shade {
     position: absolute; inset: 0; z-index: -1;
     background:
-      linear-gradient(180deg, rgba(0,0,40,.35) 0%, rgba(0,0,40,.05) 30%, rgba(0,0,40,.55) 70%, rgba(0,0,40,.95) 100%);
+      linear-gradient(180deg, rgba(0,0,40,.6) 0%, rgba(0,0,40,.25) 28%, rgba(0,0,40,.55) 70%, rgba(0,0,40,.95) 100%);
     pointer-events: none;
   }
   .hero-content { width: min(100%, 720px); position: relative; }
@@ -193,23 +246,16 @@
     margin: 0 0 .6rem;
     text-shadow: 0 0 18px rgba(243,214,139,.35), 0 2px 10px rgba(0,0,0,.6);
   }
-  .eyebrow {
-    font-size: clamp(.62rem, 2.4vw, .8rem);
-    letter-spacing: .32em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 0 0 clamp(1.25rem, 4vh, 2.25rem);
-    text-shadow: 0 2px 10px rgba(0,0,0,.7);
-  }
 
   .names { display: grid; gap: clamp(.8rem, 2.6vh, 1.3rem); justify-items: center; }
   .name-block { display: grid; gap: .15rem; }
   .role {
-    font-size: clamp(.6rem, 2.2vw, .75rem);
+    font-size: clamp(.62rem, 2.2vw, .78rem);
+    font-weight: 600;
     letter-spacing: .4em;
     text-transform: uppercase;
-    color: var(--gold);
-    text-shadow: 0 2px 10px rgba(0,0,0,.8);
+    color: #ffe9a8;
+    text-shadow: 0 0 10px rgba(0,0,30,.9), 0 2px 8px rgba(0,0,0,.9);
   }
   .name-block h1, .name-block h2 {
     font-family: var(--serif);
@@ -217,12 +263,14 @@
     margin: 0;
     line-height: 1.05;
     font-size: clamp(2.3rem, 11vw, 5.4rem);
-    background: linear-gradient(120deg, #fff6d8 0%, var(--gold) 40%, var(--rose) 70%, #fff6d8 100%);
+    background: linear-gradient(120deg, #ffffff 0%, #ffe38a 35%, #ffb3d6 70%, #ffffff 100%);
     background-size: 220% auto;
     -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: shimmer 7s linear infinite;
-    filter: drop-shadow(0 6px 22px rgba(0,0,0,.6));
+    filter:
+      drop-shadow(0 2px 3px rgba(0,0,30,.85))
+      drop-shadow(0 8px 26px rgba(0,0,30,.75));
   }
   .name-block h2 { font-size: clamp(1.75rem, 8vw, 3.9rem); }
   .amp {
@@ -272,6 +320,10 @@
   .countdown.done strong { color: var(--gold); }
 
   /* ================= BUTTONS ================= */
+  .btn-row {
+    display: flex; flex-wrap: wrap; gap: .8rem;
+    justify-content: center;
+  }
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
     margin-top: clamp(1.4rem, 4vh, 2rem);
@@ -287,6 +339,7 @@
     transition: transform .4s var(--ease), box-shadow .4s var(--ease), background .4s;
     -webkit-tap-highlight-color: transparent;
   }
+  .btn-row .btn { margin-top: clamp(1.4rem, 4vh, 2rem); }
   .btn:hover, .btn:focus-visible {
     transform: translateY(-3px) scale(1.03);
     background: linear-gradient(135deg, rgba(243,214,139,.35), rgba(231,161,196,.35));
@@ -340,7 +393,7 @@
     letter-spacing: .3em; text-transform: uppercase; color: var(--gold);
   }
 
-  /* ================= PARALLAX BANDS (embedded backgrounds) ================= */
+  /* ================= PARALLAX BANDS ================= */
   .band {
     position: relative;
     height: clamp(280px, 66vh, 620px);
@@ -350,13 +403,18 @@
     text-align: center;
     isolation: isolate;
   }
+  /* outer = JS parallax, inner = CSS Ken Burns (separate so they don't fight) */
   .band-media {
     position: absolute; left: 0; right: 0; top: -18%; bottom: -18%;
+    z-index: -2;
+    will-change: transform;
+  }
+  .band-zoom {
+    position: absolute; inset: 0;
     background-image: var(--img);
     background-size: cover;
     background-position: center;
     will-change: transform;
-    z-index: -2;
     animation: kenBurns 28s ease-in-out infinite alternate;
   }
   .band::after {
@@ -442,6 +500,51 @@
     color: var(--gold); font-size: .78rem; letter-spacing: .06em;
   }
   .event-card .sub { margin-top: .8rem; padding-top: .8rem; border-top: 1px dashed var(--gold-soft); }
+  .venue-link {
+    display: inline-block; margin-top: .9rem;
+    color: var(--gold); font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+    text-decoration: none; border-bottom: 1px solid var(--gold-soft); padding-bottom: .15rem;
+  }
+  .venue-link:hover, .venue-link:focus-visible { color: #fff; border-bottom-color: var(--gold); outline: none; }
+
+  /* ================= LOCATION ================= */
+  .venues {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 3vw, 1.6rem);
+  }
+  .venue-card {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: .35rem;
+    padding: clamp(1.4rem, 4vw, 2rem);
+    border-radius: var(--radius);
+    background: linear-gradient(160deg, rgba(13,34,89,.8), rgba(0,0,40,.82));
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 20px 50px rgba(0,0,0,.4);
+  }
+  .venue-tag {
+    font-size: .68rem; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--gold); margin: 0;
+  }
+  .venue-card h3 {
+    font-family: var(--serif); font-weight: 600;
+    font-size: clamp(1.5rem, 4.5vw, 1.8rem);
+    line-height: 1.2; margin: .2rem 0 0;
+  }
+  .venue-card .venue-sub { color: var(--muted); font-size: .9rem; margin: 0; }
+  .qr {
+    width: 190px; height: 190px;
+    margin: .9rem 0 .6rem;
+    padding: 10px;
+    border-radius: 14px;
+    background: #fff;
+    display: grid; place-items: center;
+    color: var(--navy-900);
+    font-size: .8rem;
+  }
+  .qr img { width: 100%; height: 100%; display: block; }
+  .venue-card .btn { margin-top: .4rem; }
+  .venue-note { font-size: .72rem; color: var(--muted); letter-spacing: .05em; margin: .6rem 0 0; }
 
   /* ================= VELVET CURTAIN SCRATCH ================= */
   .velvet {
@@ -477,7 +580,23 @@
   }
   .velvet.revealed canvas { opacity: 0; pointer-events: none; }
 
-  /* ================= MEMORY GALLERY (1 to 31) ================= */
+  /* ================= CELEBRATION PARTICLES ================= */
+  .confetti {
+    position: fixed; left: 0; top: 0;
+    pointer-events: none;
+    z-index: 150;
+    will-change: transform, opacity;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .confetti.round { border-radius: 50%; }
+  .confetti.bar { border-radius: 2px; }
+  .confetti.star {
+    border-radius: 0;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    box-shadow: none;
+  }
+
+  /* ================= MEMORY GALLERY ================= */
   .gallery { columns: 2; column-gap: clamp(.6rem, 2vw, 1.1rem); }
   .gallery figure {
     margin: 0 0 clamp(.6rem, 2vw, 1.1rem);
@@ -518,6 +637,7 @@
     object-fit: contain; border-radius: 12px;
     box-shadow: 0 30px 80px rgba(0,0,0,.7);
     transition: transform .5s var(--ease), opacity .3s;
+    backface-visibility: hidden;
   }
   .lightbox img.swap { opacity: 0; transform: scale(.96); }
   .lb-btn {
@@ -597,7 +717,7 @@
   /* ================= REVEAL ================= */
   .reveal {
     opacity: 0; transform: translateY(40px);
-    transition: opacity 1s var(--ease), transform 1s var(--ease), filter 1s;
+    transition: opacity 1s var(--ease), transform 1s var(--ease);
     transition-delay: var(--d, 0s);
   }
   .reveal.in { opacity: 1; transform: none; }
@@ -607,6 +727,7 @@
   @keyframes drift2 { to { transform: translate(-12vw, -8vh) scale(1.1); } }
   @keyframes drift3 { to { transform: translate(-10vw, 12vh) scale(.9); } }
   @keyframes heroZoom { from { transform: scale(1.03); } to { transform: scale(1.12); } }
+  @keyframes heroZoomSoft { from { transform: scale(1.02); } to { transform: scale(1.06); } }
   @keyframes kenBurns { from { transform: scale(1); } to { transform: scale(1.08); } }
   @keyframes shimmer { to { background-position: 220% center; } }
   @keyframes float { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-6px) rotate(4deg); } }
@@ -633,6 +754,7 @@
   /* ================= RESPONSIVE ================= */
   @media (max-width: 900px) {
     .events { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
+    .venues { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
     .gallery { columns: 2; }
   }
   @media (max-width: 640px) {
@@ -646,10 +768,38 @@
     .lb-next { right: .2rem; }
     .welcome-btn { padding: 1rem 1.6rem; letter-spacing: .2em; }
     .blob { width: 90vmax; height: 90vmax; filter: blur(55px); }
+    .qr { width: 170px; height: 170px; }
   }
-  @media (hover: none) {
-    .tilt, .event-card { transform: none !important; }
+
+  /* ================= MOBILE / TABLET MODE =================
+     Applied only when the device is a phone or tablet (see <script> in <head>).
+     Desktop keeps the original layout untouched. */
+  .is-mobile .blob { filter: none; opacity: .28; }
+  .is-mobile .petal { filter: none; }
+  .is-mobile .countdown {
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+    background: rgba(10, 26, 79, .8);
   }
+  .is-mobile .hero {
+    min-height: var(--app-h);
+    padding-top: 4.5rem;
+    padding-bottom: 3.5rem;
+  }
+  .is-mobile .hero-zoom { animation-name: heroZoomSoft; animation-duration: 30s; }
+  .is-mobile section { padding: clamp(3rem, 8vh, 4.5rem) 1rem; }
+  .is-mobile .section-head { margin-bottom: 2rem; }
+  .is-mobile .band { height: clamp(240px, 56svh, 460px); }
+  .is-mobile .band-zoom { animation-duration: 40s; }
+  .is-mobile .velvet { height: clamp(260px, 56svh, 420px); }
+  .is-mobile .event-card,
+  .is-mobile .venue-card { box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+  .is-mobile .gallery figure { box-shadow: 0 8px 20px rgba(0,0,0,.35); }
+  .is-mobile .gallery figure:hover img,
+  .is-mobile .tilt:hover::after { transform: none; filter: none; }
+  .is-mobile .intro-center { padding: 1.25rem; }
+  .is-mobile .btn { font-size: .72rem; letter-spacing: .2em; padding: .9rem 1.5rem; }
+  .is-mobile .btn-row { gap: .7rem; }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: .001ms !important;
@@ -663,6 +813,11 @@
 </style>
 </head>
 <body class="locked">
+
+<!-- Background music (place song.mpeg next to index.html, outside images/) -->
+<audio id="bgMusic" preload="auto" loop>
+  <source src="song.mpeg" type="audio/mpeg">
+</audio>
 
 <!-- Ambient layers -->
 <div class="aurora" aria-hidden="true">
@@ -692,6 +847,7 @@
         <h2>Sharanabasavaraja B</h2>
       </div>
     </div>
+    <p class="getting-married">We are getting married</p>
     <button class="welcome-btn" id="welcomeBtn" type="button">Click to Welcome</button>
   </div>
 </div>
@@ -700,7 +856,9 @@
   <!-- HERO -->
   <header class="hero" id="top">
     <div class="hero-media" id="heroMedia">
-      <img src="images/background.jpg" alt="Shweta and Sharanabasavaraja silhouetted at sunset">
+      <div class="hero-zoom">
+        <img src="images/background.jpg" alt="Shweta and Sharanabasavaraja silhouetted at sunset">
+      </div>
     </div>
     <div class="hero-shade" aria-hidden="true"></div>
 
@@ -720,6 +878,8 @@
         </div>
       </div>
 
+      <p class="getting-married reveal" style="--d:.7s">We are getting married</p>
+
       <p class="date reveal" style="--d:.75s">Sunday, 22 November 2026 <span>· Sindanoor</span></p>
 
       <div class="countdown reveal" id="countdown" style="--d:.9s" aria-live="polite">
@@ -729,7 +889,10 @@
         <div><strong data-unit="s">--</strong><small>Seconds</small></div>
       </div>
 
-      <a class="btn pulse-soft reveal" style="--d:1.05s" href="#events">View Events</a>
+      <div class="btn-row reveal" style="--d:1.05s">
+        <a class="btn pulse-soft" href="#events">View Events</a>
+        <a class="btn" href="#location">Location</a>
+      </div>
     </div>
     <span class="scroll-cue" aria-hidden="true"></span>
   </header>
@@ -744,7 +907,7 @@
 
   <!-- BAND 1 -->
   <section class="band" style="--img:url('images/other1.jpg')" aria-label="Photo">
-    <div class="band-media" data-parallax="0.28"></div>
+    <div class="band-media" data-parallax="0.28"><div class="band-zoom"></div></div>
     <p class="band-text reveal">Every love story is beautiful, but ours is our favourite.</p>
   </section>
 
@@ -784,6 +947,7 @@
           <p>Sri Annadaneshwara Kalyana Mantapa, Sindanoor</p>
           <span class="event-time">Muhurtham 6:31 – 7:31 AM</span>
           <div class="sub"><p>Priteeya Bhojana · <strong style="color:var(--gold)">12:00 Noon</strong></p></div>
+          <a class="venue-link" href="#location">View location</a>
         </article>
 
         <article class="event-card tilt-card reveal" style="--d:.3s">
@@ -797,6 +961,36 @@
           </div>
           <h3>Aarathakshate</h3>
           <p>Sri Raghavendra Kalyana Mantapa, Kampli</p>
+          <a class="venue-link" href="#location">View location</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCATION -->
+  <section id="location">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="kicker">Find Us</p>
+        <h2>Location</h2>
+        <div class="divider"></div>
+      </div>
+
+      <div class="venues">
+        <article class="venue-card reveal">
+          <p class="venue-tag">Wedding Venue</p>
+          <h3>Sindanoor Wedding Hall</h3>
+          <p class="venue-sub">Sindanoor</p>
+          <div class="qr" data-qr="https://maps.app.goo.gl/BW3dNYrb1yWN5apM9?g_st=aw" data-label="QR code for Sindanoor Wedding Hall location"></div>
+          <a class="btn" href="https://maps.app.goo.gl/BW3dNYrb1yWN5apM9?g_st=aw" target="_blank" rel="noopener noreferrer">Open in Maps</a>
+        </article>
+
+        <article class="venue-card reveal" style="--d:.15s">
+          <p class="venue-tag">Reception</p>
+          <h3>Raghavendra Swamy Temple</h3>
+          <p class="venue-sub">Kampli</p>
+          <div class="qr" data-qr="https://maps.app.goo.gl/xyiqJeGDMMuzx5DA7" data-label="QR code for Raghavendra Swamy Temple Kampli location"></div>
+          <a class="btn" href="https://maps.app.goo.gl/xyiqJeGDMMuzx5DA7" target="_blank" rel="noopener noreferrer">Open in Maps</a>
         </article>
       </div>
     </div>
@@ -824,7 +1018,7 @@
 
   <!-- BAND 2 -->
   <section class="band" style="--img:url('images/other4.jpg')" aria-label="Photo">
-    <div class="band-media" data-parallax="0.3"></div>
+    <div class="band-media" data-parallax="0.3"><div class="band-zoom"></div></div>
     <p class="band-text reveal">Two souls, one heartbeat.</p>
   </section>
 
@@ -856,7 +1050,7 @@
 
   <!-- BAND 3 -->
   <section class="band" style="--img:url('images/other6.jpg')" aria-label="Photo">
-    <div class="band-media" data-parallax="0.26"></div>
+    <div class="band-media" data-parallax="0.26"><div class="band-zoom"></div></div>
     <p class="band-text reveal">Forever begins with a single yes.</p>
   </section>
 
@@ -876,7 +1070,7 @@
 
   <!-- BAND 4 -->
   <section class="band" style="--img:url('images/other8.jpg')" aria-label="Photo">
-    <div class="band-media" data-parallax="0.24"></div>
+    <div class="band-media" data-parallax="0.24"><div class="band-zoom"></div></div>
     <p class="band-text reveal">Come, bless us with your presence.</p>
   </section>
 </main>
@@ -885,7 +1079,7 @@
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
   <button class="lb-close" type="button" aria-label="Close">×</button>
   <button class="lb-btn lb-prev" type="button" aria-label="Previous">‹</button>
-  <img id="lbImg" src="" alt="">
+  <img id="lbImg" src="" alt="" decoding="async">
   <button class="lb-btn lb-next" type="button" aria-label="Next">›</button>
   <div class="lb-count" id="lbCount"></div>
 </div>
@@ -908,16 +1102,96 @@
     memoryCount: 31,
     starDensity: 9000,
     maxStars: 180,
+    maxStarsMobile: 70,
     petalsDesktop: 18,
     petalsMobile: 8,
     scratchThreshold: 0.55,
     scratchBrush: 26,
     scratchSampleMs: 220,
+    celebrateColors: ["#f3d68b", "#e7a1c4", "#ffffff", "#8fb4ff", "#ffd27a", "#f7c6dc"],
   });
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const isTouch = window.matchMedia("(hover: none)").matches;
   const isNarrow = window.matchMedia("(max-width: 640px)").matches;
+  const isMobileDevice = document.documentElement.classList.contains("is-mobile");
+
+  /* ---------- Dynamic viewport height (fixes mobile URL-bar jumps) ---------- */
+  const root = document.documentElement;
+  let lastWidth = window.innerWidth;
+  const setAppHeight = () => root.style.setProperty("--app-h", `${window.innerHeight}px`);
+  setAppHeight();
+  window.addEventListener("resize", () => {
+    if (window.innerWidth !== lastWidth) { lastWidth = window.innerWidth; setAppHeight(); }
+  }, { passive: true });
+  window.addEventListener("orientationchange", () => {
+    setTimeout(() => { lastWidth = window.innerWidth; setAppHeight(); }, 250);
+  });
+
+  /* ---------- Music ---------- */
+  const music = document.getElementById("bgMusic");
+  if (music) music.volume = 0.7;
+
+  function playMusic() {
+    if (!music) return;
+    const p = music.play();
+    if (p && typeof p.catch === "function") {
+      p.catch((err) => console.warn("Background music could not start:", err));
+    }
+  }
+
+  /* ---------- Celebration particles ---------- */
+  function burstParticles(x, y, count, spread) {
+    if (reduceMotion) return;
+    const frag = document.createDocumentFragment();
+    const colors = CONFIG.celebrateColors;
+    const pieces = [];
+
+    for (let i = 0; i < count; i++) {
+      const piece = document.createElement("span");
+      const kind = Math.random();
+      const shape = kind < 0.34 ? "round" : kind < 0.67 ? "bar" : "star";
+      const size = shape === "bar" ? Math.random() * 4 + 4 : Math.random() * 7 + 5;
+      const h = shape === "bar" ? size * 2.2 : size;
+      piece.className = `confetti ${shape}`;
+      piece.style.width = `${size}px`;
+      piece.style.height = `${h}px`;
+      piece.style.background = colors[i % colors.length];
+      piece.style.color = colors[i % colors.length];
+      frag.appendChild(piece);
+
+      const angle = Math.random() * Math.PI * 2;
+      const dist = spread * (0.45 + Math.random() * 0.8);
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist - (60 + Math.random() * 80);
+      const fall = 120 + Math.random() * 140;
+      const rot = (Math.random() * 540 + 180) * (Math.random() < 0.5 ? -1 : 1);
+      const startX = x - size / 2;
+      const startY = y - h / 2;
+      piece.style.transform = `translate(${startX}px, ${startY}px)`;
+      pieces.push({ piece, startX, startY, dx, dy, fall, rot });
+    }
+    document.body.appendChild(frag);
+
+    for (const p of pieces) {
+      const anim = p.piece.animate([
+        { transform: `translate(${p.startX}px, ${p.startY}px) scale(.2) rotate(0deg)`, opacity: 1 },
+        { transform: `translate(${p.startX + p.dx}px, ${p.startY + p.dy}px) scale(1) rotate(${p.rot / 2}deg)`, opacity: 1, offset: 0.45 },
+        { transform: `translate(${p.startX + p.dx * 1.08}px, ${p.startY + p.dy + p.fall}px) scale(.8) rotate(${p.rot}deg)`, opacity: 0 },
+      ], { duration: 1500 + Math.random() * 900, easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" });
+      anim.onfinish = () => p.piece.remove();
+    }
+  }
+
+  function celebrate(rect) {
+    if (reduceMotion || !rect || !rect.width) return;
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const spread = Math.min(rect.width, 320) * 1.1;
+    burstParticles(cx, cy, isNarrow ? 46 : 70, spread);
+    setTimeout(() => burstParticles(rect.left + rect.width * 0.15, cy, isNarrow ? 16 : 22, 160), 220);
+    setTimeout(() => burstParticles(rect.left + rect.width * 0.85, cy, isNarrow ? 16 : 22, 160), 380);
+  }
 
   /* ---------- Intro: click to welcome ---------- */
   const intro = document.getElementById("intro");
@@ -940,8 +1214,9 @@
     }
   }
 
-  function openWelcome(e) {
+  function openWelcome() {
     if (intro.classList.contains("open")) return;
+    playMusic();
     const rect = welcomeBtn.getBoundingClientRect();
     burstSparks(rect.left + rect.width / 2, rect.top + rect.height / 2);
     intro.classList.add("open");
@@ -1015,13 +1290,14 @@
     let w = 0, h = 0, dpr = 1, rafId = 0;
 
     function resize() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, isMobileDevice ? 1.5 : 2);
       w = window.innerWidth;
       h = window.innerHeight;
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = Math.min(CONFIG.maxStars, Math.floor((w * h) / CONFIG.starDensity));
+      const cap = isMobileDevice ? CONFIG.maxStarsMobile : CONFIG.maxStars;
+      const count = Math.min(cap, Math.floor((w * h) / CONFIG.starDensity));
       stars = Array.from({ length: count }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -1121,7 +1397,7 @@
     }
   }
 
-  /* ---------- 3D tilt ---------- */
+  /* ---------- 3D tilt (desktop only) ---------- */
   if (!isTouch && !reduceMotion) {
     const MAX = 9;
     const bindTilt = (el, strength) => {
@@ -1146,9 +1422,9 @@
 
   /* ---------- Scratch-to-reveal engine ---------- */
   class ScratchCard {
-    constructor(root, { paint, threshold, brush, onReveal }) {
-      this.root = root;
-      this.canvas = root.querySelector("canvas");
+    constructor(rootEl, { paint, threshold, brush, onReveal }) {
+      this.root = rootEl;
+      this.canvas = rootEl.querySelector("canvas");
       this.ctx = this.canvas.getContext("2d", { willReadFrequently: true });
       this.paint = paint;
       this.threshold = threshold;
@@ -1260,7 +1536,7 @@
       this.done = true;
       this.root.classList.add("revealed");
       this.drawing = false;
-      this.onReveal?.();
+      this.onReveal?.(this.root.getBoundingClientRect());
     }
   }
 
@@ -1322,14 +1598,17 @@
   }
 
   // Event date scratch cards
-  document.querySelectorAll('[data-scratch="gold"]').forEach((root) => {
-    new ScratchCard(root, {
+  document.querySelectorAll('[data-scratch="gold"]').forEach((cardRoot) => {
+    new ScratchCard(cardRoot, {
       paint: paintGold,
       threshold: CONFIG.scratchThreshold,
       brush: isNarrow ? 30 : CONFIG.scratchBrush,
-      onReveal: () => root.querySelector(".event-date")?.animate([
-        { transform: "scale(1)" }, { transform: "scale(1.12)" }, { transform: "scale(1)" },
-      ], { duration: 700, easing: "ease-out" }),
+      onReveal: (rect) => {
+        cardRoot.querySelector(".event-date")?.animate([
+          { transform: "scale(1)" }, { transform: "scale(1.12)" }, { transform: "scale(1)" },
+        ], { duration: 700, easing: "ease-out" });
+        celebrate(rect);
+      },
     });
   });
 
@@ -1340,8 +1619,23 @@
       paint: paintVelvet,
       threshold: 0.5,
       brush: isNarrow ? 34 : 44,
+      onReveal: (rect) => celebrate(rect),
     });
   }
+
+  /* ---------- QR codes (generated per venue) ---------- */
+  document.querySelectorAll(".qr[data-qr]").forEach((box) => {
+    const img = new Image();
+    img.alt = box.dataset.label || "QR code";
+    img.decoding = "async";
+    img.loading = "lazy";
+    img.width = 360;
+    img.height = 360;
+    img.onerror = () => { box.textContent = "QR unavailable. Use the button below."; };
+    img.src = "https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=8&color=000028&bgcolor=ffffff&data="
+      + encodeURIComponent(box.dataset.qr);
+    box.appendChild(img);
+  });
 
   /* ---------- Memory gallery (1 to 31) + lightbox ---------- */
   const MEMORIES = Array.from({ length: CONFIG.memoryCount }, (_, i) => `images/${i + 1}.jpg`);
@@ -1355,7 +1649,6 @@
   });
   gallery.appendChild(frag);
 
-  // Re-observe newly-added figures for reveal
   if ("IntersectionObserver" in window) {
     const figIO = new IntersectionObserver((entries) => {
       for (const entry of entries) {
@@ -1373,6 +1666,14 @@
   let current = 0;
   let touchX = null;
 
+  function preloadNeighbours(index) {
+    [index - 1, index + 1].forEach((i) => {
+      const im = new Image();
+      im.decoding = "async";
+      im.src = MEMORIES[(i + MEMORIES.length) % MEMORIES.length];
+    });
+  }
+
   function showMemory(index, animate = true) {
     current = (index + MEMORIES.length) % MEMORIES.length;
     const apply = () => {
@@ -1380,6 +1681,7 @@
       lbImg.alt = `Memory ${current + 1}`;
       lbCount.textContent = `${String(current + 1).padStart(2, "0")} / ${MEMORIES.length}`;
       lbImg.classList.remove("swap");
+      preloadNeighbours(current);
     };
     if (animate && lightbox.classList.contains("open")) {
       lbImg.classList.add("swap");
